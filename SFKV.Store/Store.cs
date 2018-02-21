@@ -4,11 +4,10 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using SFKV.Contracts;
+using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
 
 namespace SFKV.Store
 {
@@ -39,7 +38,10 @@ namespace SFKV.Store
         {
             return new[]
             {
-                new ServiceReplicaListener(context => this.CreateServiceRemotingListener(context), "RpcEndpoint", true)
+                new ServiceReplicaListener(
+                    (c) => new FabricTransportServiceRemotingListener(c, this),
+                    "V2Listener", 
+                    listenOnSecondary: true)
             };
         }
 
