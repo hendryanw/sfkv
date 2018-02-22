@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SFKV.Contracts")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("SFKV is a fast and reliable remote key-value store running as a service on top Microsoft Service Fabric exposing Service Remoting rpc communication. This package provides the service interface to communicate with SFKV.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Hendry Anwar")]
 [assembly: AssemblyProduct("SFKV.Contracts")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Copyright © Hendry Anwar 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
