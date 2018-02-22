@@ -21,17 +21,49 @@ namespace SFKV.Store
         public Store(StatefulServiceContext context)
             : base(context)
         {
-            _stateRepository = new StateRepository(this.StateManager);
+            _stateRepository = new StateRepository(StateManager);
         }
 
         public async Task<string> StringGet(string key)
         {
-            return await _stateRepository.StringGetAsync(key);
+            SFKVEventSource.Current.ServiceRequestStart(nameof(StringGet));
+
+            try
+            {
+                return await _stateRepository.StringGetAsync(key);
+            }
+            catch (Exception ex)
+            {
+                SFKVEventSource.Current.ServiceRequestError(nameof(StringGet), ex.ToString());
+
+                // Propagate the exception to the client via service remoting.
+                throw;
+            }
+            finally
+            {
+                SFKVEventSource.Current.ServiceRequestStop(nameof(StringGet));
+            }
         }
 
         public async Task StringSet(string key, string value)
         {
-            await _stateRepository.StringSetAsync(key, value);
+            SFKVEventSource.Current.ServiceRequestStart(nameof(StringSet));
+
+            try
+            {
+                await _stateRepository.StringSetAsync(key, value);
+            }
+            catch (Exception ex)
+            {
+                SFKVEventSource.Current.ServiceRequestError(nameof(StringSet), ex.ToString());
+
+                // Propagate the exception to the client via service remoting.
+                throw;
+            }
+            finally
+            {
+                SFKVEventSource.Current.ServiceRequestStop(nameof(StringSet));
+            }
         }
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()

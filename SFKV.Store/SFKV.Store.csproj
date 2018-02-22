@@ -96,7 +96,7 @@
     <Compile Include="StateRepository.cs" />
     <Compile Include="Store.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ServiceEventSource.cs" />
+    <Compile Include="SFKVEventSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PackageRoot\Config\Settings.xml" />

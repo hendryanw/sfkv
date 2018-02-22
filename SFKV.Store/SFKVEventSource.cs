@@ -9,12 +9,13 @@ using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace SFKV.Store
 {
-    [EventSource(Name = "MyCompany-SFKV-SFKV.Store")]
-    internal sealed class ServiceEventSource : EventSource
+    [EventSource(Guid = "3c921875-8e76-4edd-a893-76f39fe8b281", Name = "SFKV-SFKV.Store")]
+    internal sealed class SFKVEventSource : EventSource
     {
-        public static readonly ServiceEventSource Current = new ServiceEventSource();
+        #region Singleton Construct
+        public static readonly SFKVEventSource Current = new SFKVEventSource();
 
-        static ServiceEventSource()
+        static SFKVEventSource()
         {
             // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
             // This problem will be fixed in .NET Framework 4.6.2.
@@ -22,27 +23,14 @@ namespace SFKV.Store
         }
 
         // Instance constructor is private to enforce singleton semantics
-        private ServiceEventSource() : base() { }
-
-        #region Keywords
-        // Event keywords can be used to categorize events. 
-        // Each keyword is a bit flag. A single event can be associated with multiple keywords (via EventAttribute.Keywords property).
-        // Keywords must be defined as a public class named 'Keywords' inside EventSource that uses them.
-        public static class Keywords
-        {
-            public const EventKeywords Requests = (EventKeywords)0x1L;
-            public const EventKeywords ServiceInitialization = (EventKeywords)0x2L;
-        }
+        private SFKVEventSource() : base() { } 
         #endregion
 
-        #region Events
-        // Define an instance method for each event you want to record and apply an [Event] attribute to it.
-        // The method name is the name of the event.
-        // Pass any parameters you want to record with the event (only primitive integer types, DateTime, Guid & string are allowed).
-        // Each event method implementation should check whether the event source is enabled, and if it is, call WriteEvent() method to raise the event.
-        // The number and types of arguments passed to every event method must exactly match what is passed to WriteEvent().
-        // Put [NonEvent] attribute on all methods that do not define an event.
-        // For more information see https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventsource.aspx
+        public static class Keywords
+        {
+            public const EventKeywords Requests = (EventKeywords)1;
+            public const EventKeywords ServiceInitialization = (EventKeywords)2;
+        }
 
         [NonEvent]
         public void Message(string message, params object[] args)
@@ -82,9 +70,6 @@ namespace SFKV.Store
             }
         }
 
-        // For very high-frequency events it might be advantageous to raise events using WriteEventCore API.
-        // This results in more efficient parameter handling, but requires explicit allocation of EventData structure and unsafe code.
-        // To enable this code path, define UNSAFE conditional compilation symbol and turn on unsafe code support in project properties.
         private const int ServiceMessageEventId = 2;
         [Event(ServiceMessageEventId, Level = EventLevel.Informational, Message = "{7}")]
         private
@@ -136,9 +121,6 @@ namespace SFKV.Store
             WriteEvent(ServiceHostInitializationFailedEventId, exception);
         }
 
-        // A pair of events sharing the same name prefix with a "Start"/"Stop" suffix implicitly marks boundaries of an event tracing activity.
-        // These activities can be automatically picked up by debugging and profiling tools, which can compute their execution time, child activities,
-        // and other statistics.
         private const int ServiceRequestStartEventId = 5;
         [Event(ServiceRequestStartEventId, Level = EventLevel.Informational, Message = "Service request '{0}' started", Keywords = Keywords.Requests)]
         public void ServiceRequestStart(string requestTypeName)
@@ -148,13 +130,18 @@ namespace SFKV.Store
 
         private const int ServiceRequestStopEventId = 6;
         [Event(ServiceRequestStopEventId, Level = EventLevel.Informational, Message = "Service request '{0}' finished", Keywords = Keywords.Requests)]
-        public void ServiceRequestStop(string requestTypeName, string exception = "")
+        public void ServiceRequestStop(string requestTypeName)
         {
-            WriteEvent(ServiceRequestStopEventId, requestTypeName, exception);
+            WriteEvent(ServiceRequestStopEventId, requestTypeName);
         }
-        #endregion
 
-        #region Private methods
+        private const int ServiceRequestErrorEventId = 7;
+        [Event(ServiceRequestErrorEventId, Level = EventLevel.Error, Message = "Service request '{0}' encounter one or more errors", Keywords = Keywords.Requests)]
+        public void ServiceRequestError(string requestTypeName, string exception)
+        {
+            WriteEvent(ServiceRequestErrorEventId, requestTypeName, exception);
+        }
+
 #if UNSAFE
         private int SizeInBytes(string s)
         {
@@ -168,6 +155,5 @@ namespace SFKV.Store
             }
         }
 #endif
-        #endregion
     }
 }
