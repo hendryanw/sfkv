@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Fabric;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace SFKV.Store
 {
@@ -23,7 +19,7 @@ namespace SFKV.Store
         }
 
         // Instance constructor is private to enforce singleton semantics
-        private SFKVEventSource() : base() { } 
+        private SFKVEventSource() : base() { }
         #endregion
 
         public static class Keywords

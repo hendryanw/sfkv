@@ -1,10 +1,8 @@
-﻿using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
+
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
 
 namespace SFKV.Store
 {

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
-using Microsoft.ServiceFabric.Services.Runtime;
-using SFKV.Contracts;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Runtime;
+
+using SFKV.Contracts;
 
 namespace SFKV.Store
 {
@@ -72,7 +72,7 @@ namespace SFKV.Store
             {
                 new ServiceReplicaListener(
                     (c) => new FabricTransportServiceRemotingListener(c, this),
-                    "V2Listener", 
+                    "V2Listener",
                     listenOnSecondary: true)
             };
         }
