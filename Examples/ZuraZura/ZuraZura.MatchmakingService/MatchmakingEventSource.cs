@@ -1,17 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Fabric;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Runtime;
+using Newtonsoft.Json;
 
-namespace SFKV.Store
+namespace ZuraZura.MatchmakingService
 {
-    [EventSource(Name = "SFKV.Store")]
-    internal sealed class SFKVEventSource : EventSource
+    [EventSource(Name = "ZuraZura.MatchmakingService")]
+    internal sealed class MatchmakingEventSource : EventSource
     {
-        #region Singleton Construct
-        public static readonly SFKVEventSource Current = new SFKVEventSource();
+        public static readonly MatchmakingEventSource Current = new MatchmakingEventSource();
 
-        static SFKVEventSource()
+        #region Singleton Construct
+        static MatchmakingEventSource()
         {
             // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
             // This problem will be fixed in .NET Framework 4.6.2.
@@ -19,13 +24,13 @@ namespace SFKV.Store
         }
 
         // Instance constructor is private to enforce singleton semantics
-        private SFKVEventSource() : base() { }
+        private MatchmakingEventSource() : base() { } 
         #endregion
 
         public static class Keywords
         {
-            public const EventKeywords Requests = (EventKeywords)1;
-            public const EventKeywords ServiceInitialization = (EventKeywords)2;
+            public const EventKeywords Requests = (EventKeywords)0x1L;
+            public const EventKeywords ServiceInitialization = (EventKeywords)0x2L;
         }
 
         [NonEvent]
@@ -49,15 +54,16 @@ namespace SFKV.Store
         }
 
         [NonEvent]
-        public void ServiceMessage(StatefulServiceContext serviceContext, string message, params object[] args)
+        public void ServiceMessage(ServiceContext serviceContext, string message, params object[] args)
         {
             if (this.IsEnabled())
             {
+
                 string finalMessage = string.Format(message, args);
                 ServiceMessage(
                     serviceContext.ServiceName.ToString(),
                     serviceContext.ServiceTypeName,
-                    serviceContext.ReplicaId,
+                    GetReplicaOrInstanceId(serviceContext),
                     serviceContext.PartitionId,
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
@@ -66,6 +72,9 @@ namespace SFKV.Store
             }
         }
 
+        // For very high-frequency events it might be advantageous to raise events using WriteEventCore API.
+        // This results in more efficient parameter handling, but requires explicit allocation of EventData structure and unsafe code.
+        // To enable this code path, define UNSAFE conditional compilation symbol and turn on unsafe code support in project properties.
         private const int ServiceMessageEventId = 2;
         [Event(ServiceMessageEventId, Level = EventLevel.Informational, Message = "{7}")]
         private
@@ -116,28 +125,45 @@ namespace SFKV.Store
         {
             WriteEvent(ServiceHostInitializationFailedEventId, exception);
         }
-
+        
         private const int ServiceRequestStartEventId = 5;
-        [Event(ServiceRequestStartEventId, Level = EventLevel.Informational, Message = "Service request '{0}' started", Keywords = Keywords.Requests)]
-        public void ServiceRequestStart(string requestTypeName)
+        [Event(ServiceRequestStartEventId, Level = EventLevel.Informational, Message = "Service request '{0}' started at '{1}'", Keywords = Keywords.Requests)]
+        public void ServiceRequestStart(string requestTypeName, string currentTime, string arguments)
         {
-            WriteEvent(ServiceRequestStartEventId, requestTypeName);
+            WriteEvent(ServiceRequestStartEventId, requestTypeName, currentTime, arguments);
         }
 
         private const int ServiceRequestStopEventId = 6;
-        [Event(ServiceRequestStopEventId, Level = EventLevel.Informational, Message = "Service request '{0}' finished", Keywords = Keywords.Requests)]
-        public void ServiceRequestStop(string requestTypeName)
+        [Event(ServiceRequestStopEventId, Level = EventLevel.Informational, Message = "Service request '{0}' finished at '{1}'", Keywords = Keywords.Requests)]
+        public void ServiceRequestStop(string requestTypeName, string currentTime)
         {
-            WriteEvent(ServiceRequestStopEventId, requestTypeName);
+            WriteEvent(ServiceRequestStopEventId, requestTypeName, currentTime);
         }
 
         private const int ServiceRequestErrorEventId = 7;
-        [Event(ServiceRequestErrorEventId, Level = EventLevel.Error, Message = "Service request '{0}' encounter one or more errors", Keywords = Keywords.Requests)]
+        [Event(ServiceRequestErrorEventId, Level = EventLevel.Error, Message = "Service request '{0}' encounters one or more errors.", Keywords = Keywords.Requests)]
         public void ServiceRequestError(string requestTypeName, string exception)
         {
             WriteEvent(ServiceRequestErrorEventId, requestTypeName, exception);
         }
 
+        #region Private methods
+        private static long GetReplicaOrInstanceId(ServiceContext context)
+        {
+            StatelessServiceContext stateless = context as StatelessServiceContext;
+            if (stateless != null)
+            {
+                return stateless.InstanceId;
+            }
+
+            StatefulServiceContext stateful = context as StatefulServiceContext;
+            if (stateful != null)
+            {
+                return stateful.ReplicaId;
+            }
+
+            throw new NotSupportedException("Context type not supported.");
+        }
 #if UNSAFE
         private int SizeInBytes(string s)
         {
@@ -151,5 +177,6 @@ namespace SFKV.Store
             }
         }
 #endif
+        #endregion
     }
 }

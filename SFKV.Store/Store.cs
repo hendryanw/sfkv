@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
@@ -82,8 +83,10 @@ namespace SFKV.Store
         /// This method executes when the replica of the service becomes primary and has write status.
         /// </summary>
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
-        // protected override async Task RunAsync(CancellationToken cancellationToken)
-        // {
-        // }
+        protected override async Task RunAsync(CancellationToken cancellationToken)
+        {
+            // Initialize the sfkv reliable dictionary.
+            await StateManager.GetOrAddAsync<IReliableDictionary<string, string>>("sfkv");
+        }
     }
 }
