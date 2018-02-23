@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SFKV.Store
 {
-    [EventSource(Guid = "3c921875-8e76-4edd-a893-76f39fe8b281", Name = "SFKV-SFKV.Store")]
+    [EventSource(Name = "SFKV.Store")]
     internal sealed class SFKVEventSource : EventSource
     {
         #region Singleton Construct
