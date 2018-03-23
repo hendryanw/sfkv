@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
@@ -23,5 +25,13 @@ namespace SFKV.Contracts
         /// <param name="key">The key.</param>
         /// <returns>Returns the value for the key.</returns>
         Task<string> StringGet(string key);
+
+        /// <summary>
+        /// Append the value at the end of existing string if exists. Otherwise the string will be created.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value which will be appended.</param>
+        /// <returns></returns>
+        Task StringAppend(string key, string value);
     }
 }
