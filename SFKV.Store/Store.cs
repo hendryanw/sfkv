@@ -33,26 +33,46 @@ namespace SFKV.Store
 
         public async Task<string> StringGet(string key)
         {
-            return await ExecuteServiceRequestAsync(_stringRepository.StringGetAsync(key), nameof(StringGet));
+            return await ExecuteServiceRequestAsync(() => _stringRepository.StringGetAsync(key), nameof(StringGet));
         }
 
         public async Task StringSet(string key, string value)
         {
-            await ExecuteServiceRequestAsync(_stringRepository.StringSetAsync(key, value), nameof(StringSet));
+            await ExecuteServiceRequestAsync(() => _stringRepository.StringSetAsync(key, value), nameof(StringSet));
         }
 
         public async Task StringAppend(string key, string value)
         {
-            await ExecuteServiceRequestAsync(_stringRepository.StringAppendAsync(key, value), nameof(StringAppend));
+            await ExecuteServiceRequestAsync(() => _stringRepository.StringAppendAsync(key, value), nameof(StringAppend));
         }
 
-        private async Task ExecuteServiceRequestAsync(Task task, string requestTypeName)
+        public async Task<string> HashGet(string key, string field)
+        {
+            return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAsync(key, field), nameof(HashGet));
+        }
+
+        public async Task<IDictionary<string, string>> HashGetAll(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAllAsync(key), nameof(HashGetAll));
+        }
+
+        public async Task HashSet(string key, KeyValuePair<string, string> keyValuePair)
+        {
+            await ExecuteServiceRequestAsync(() => _hashRepository.HashSetAsync(key, keyValuePair), nameof(HashSet));
+        }
+
+        public async Task HashMultipleSet(string key, IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        {
+            await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleSetAsync(key, keyValuePairs), nameof(HashMultipleSet));
+        }
+
+        private async Task ExecuteServiceRequestAsync(Func<Task> actionAsync, string requestTypeName)
         {
             SFKVEventSource.Current.ServiceRequestStart(nameof(requestTypeName));
 
             try
             {
-                await task;
+                await actionAsync();
             }
             catch (Exception ex)
             {
@@ -67,13 +87,13 @@ namespace SFKV.Store
             }
         }
 
-        private async Task<T> ExecuteServiceRequestAsync<T>(Task<T> task, string requestTypeName)
+        private async Task<T> ExecuteServiceRequestAsync<T>(Func<Task<T>> funcAsync, string requestTypeName)
         {
             SFKVEventSource.Current.ServiceRequestStart(nameof(requestTypeName));
 
             try
             {
-                return await task;
+                return await funcAsync();
             }
             catch (Exception ex)
             {

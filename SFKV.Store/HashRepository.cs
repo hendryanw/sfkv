@@ -36,6 +36,15 @@ namespace SFKV.Store
             }
         }
 
+        public async Task<IDictionary<string, string>> HashGetAllAsync(string key)
+        {
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                var hash = await _hashes.TryGetValueAsync(tx, key);
+                return hash.HasValue ? hash.Value : null;
+            }
+        }
+
         public async Task HashSetAsync(string key, KeyValuePair<string, string> keyValuePair)
         {
             await HashMultipleSetAsync(key, new KeyValuePair<string, string>[] { keyValuePair });
@@ -51,7 +60,14 @@ namespace SFKV.Store
                     {
                         foreach (var keyValuePair in keyValuePairs)
                         {
-                            existingHash.Add(keyValuePair);
+                            if (existingHash.ContainsKey(keyValuePair.Key))
+                            {
+                                existingHash[keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else
+                            {
+                                existingHash.Add(keyValuePair);
+                            }
                         }
 
                         return existingHash;

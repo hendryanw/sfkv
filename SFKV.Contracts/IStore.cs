@@ -31,7 +31,35 @@ namespace SFKV.Contracts
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value which will be appended.</param>
-        /// <returns></returns>
         Task StringAppend(string key, string value);
+
+        /// <summary>
+        /// Get the value of a hash field.
+        /// </summary>
+        /// <param name="key">The hash key.</param>
+        /// <param name="field">The hash field.</param>
+        /// <returns>Returns the value of the hash field.</returns>
+        Task<string> HashGet(string key, string field);
+
+        /// <summary>
+        /// Get the hash.
+        /// </summary>
+        /// <param name="key">The hash key.</param>
+        /// <returns>Returns the hash.</returns>
+        Task<IDictionary<string, string>> HashGetAll(string key);
+
+        /// <summary>
+        /// Set the hash field and value pair.
+        /// </summary>
+        /// <param name="key">The hash key.</param>
+        /// <param name="keyValuePair">The hash field and value pair.</param>
+        Task HashSet(string key, KeyValuePair<string, string> keyValuePair);
+
+        /// <summary>
+        /// Set multiple hash field and value pairs.
+        /// </summary>
+        /// <param name="key">The hash key.</param>
+        /// <param name="keyValuePairs">Multiple hash field and value pairs.</param>
+        Task HashMultipleSet(string key, IEnumerable<KeyValuePair<string, string>> keyValuePairs);
     }
 }
