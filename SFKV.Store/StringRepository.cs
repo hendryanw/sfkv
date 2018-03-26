@@ -7,33 +7,38 @@ using System.Threading.Tasks;
 
 namespace SFKV.Store
 {
-    public class StringRepository : IRepository
+    public class StringRepository : BaseRepository<string>
     {
-        public string Name { get; } = "sfkv.string";
-
-        private readonly IReliableStateManager _stateManager;
-        private readonly IReliableDictionary<string, string> _strings;
+        public const string Name = "sfkv.string";
 
         public StringRepository(IReliableStateManager stateManager)
+            : base(stateManager, Name)
         {
-            _stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
-            _strings = stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(Name).Result;
         }
 
         public async Task<string> StringGetAsync(string key)
         {
             using (var tx = _stateManager.CreateTransaction())
             {
-                var result = await _strings.TryGetValueAsync(tx, key);
+                var result = await _dictionary.TryGetValueAsync(tx, key);
                 return result.HasValue ? result.Value : null;
             }
         }
 
         public async Task StringSetAsync(string key, string value)
         {
+            await StringMultipleSetAsync(new[] { new KeyValuePair<string, string>(key, value) });
+        }
+
+        public async Task StringMultipleSetAsync(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        {
             using (var tx = _stateManager.CreateTransaction())
             {
-                await _strings.AddOrUpdateAsync(tx, key, (k) => value, (k, v) => value);
+                foreach (var keyValuePair in keyValuePairs)
+                {
+                    await _dictionary.AddOrUpdateAsync(tx, keyValuePair.Key, (k) => keyValuePair.Value, (k, v) => keyValuePair.Value);
+                }
+                
                 await tx.CommitAsync();
             }
         }
@@ -42,7 +47,7 @@ namespace SFKV.Store
         {
             using (var tx = _stateManager.CreateTransaction())
             {
-                await _strings.AddOrUpdateAsync(tx, key, (k) => value, (k, v) => v + value);
+                await _dictionary.AddOrUpdateAsync(tx, key, (k) => value, (k, v) => v + value);
                 await tx.CommitAsync();
             }
         }
