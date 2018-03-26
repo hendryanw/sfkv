@@ -20,15 +20,18 @@ namespace SFKV.Store
     {
         private readonly Lazy<StringRepository> _stringRepositoryLazy;
         private readonly Lazy<HashRepository> _hashRepositoryLazy;
+        private readonly Lazy<IntRepository> _intRepositoryLazy;
 
         private StringRepository _stringRepository => _stringRepositoryLazy.Value;
         private HashRepository _hashRepository => _hashRepositoryLazy.Value;
+        private IntRepository _intRepository => _intRepositoryLazy.Value;
 
         public Store(StatefulServiceContext context)
             : base(context)
         {
             _stringRepositoryLazy = new Lazy<StringRepository>(() => new StringRepository(StateManager));
             _hashRepositoryLazy = new Lazy<HashRepository>(() => new HashRepository(StateManager));
+            _intRepositoryLazy = new Lazy<IntRepository>(() => new IntRepository(StateManager));
         }
 
         public async Task<string> StringGet(string key)
@@ -41,14 +44,69 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _stringRepository.StringSetAsync(key, value), nameof(StringSet));
         }
 
+        public async Task StringMultipleSet(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        {
+            await ExecuteServiceRequestAsync(() => _stringRepository.StringMultipleSetAsync(keyValuePairs), nameof(StringMultipleSet));
+        }
+
         public async Task StringAppend(string key, string value)
         {
             await ExecuteServiceRequestAsync(() => _stringRepository.StringAppendAsync(key, value), nameof(StringAppend));
+        }
+        
+        public async Task<bool> StringExists(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _stringRepository.ExistsAsync(key), nameof(StringExists));
+        }
+
+        public async Task<bool> StringDelete(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _stringRepository.DeleteAsync(key), nameof(StringDelete));
+        }
+        
+        public async Task IntSet(string key, int value)
+        {
+            await ExecuteServiceRequestAsync(() => _intRepository.IntSetAsync(key, value), nameof(IntSet));
+        }
+
+        public async Task IntMultipleSet(IEnumerable<KeyValuePair<string, int>> keyValuePairs)
+        {
+            await ExecuteServiceRequestAsync(() => _intRepository.IntMultipleSetAsync(keyValuePairs), nameof(IntMultipleSet));
+        }
+        
+        public async Task<int> IntGet(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _intRepository.IntGetAsync(key), nameof(IntGet));
+        }
+
+        public async Task<int> IntIncr(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _intRepository.IntIncrAsync(key), nameof(IntIncr));
+        }
+
+        public async Task<int> IntIncrBy(string key, int incrBy)
+        {
+            return await ExecuteServiceRequestAsync(() => _intRepository.IntIncrByAsync(key, incrBy), nameof(IntIncrBy));
+        }
+
+        public async Task<bool> IntExists(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _intRepository.ExistsAsync(key), nameof(IntExists));
+        }
+
+        public async Task<bool> IntDelete(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _intRepository.DeleteAsync(key), nameof(IntDelete));
         }
 
         public async Task<string> HashGet(string key, string field)
         {
             return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAsync(key, field), nameof(HashGet));
+        }
+
+        public async Task<IDictionary<string, string>> HashMultipleGet(string key, IEnumerable<string> fields)
+        {
+            return await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleGetAsync(key, fields), nameof(HashMultipleGet));
         }
 
         public async Task<IDictionary<string, string>> HashGetAll(string key)
@@ -66,10 +124,20 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleSetAsync(key, keyValuePairs), nameof(HashMultipleSet));
         }
 
+        public async Task<bool> HashExists(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _hashRepository.ExistsAsync(key), nameof(HashExists));
+        }
+
+        public async Task<bool> HashDelete(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _hashRepository.DeleteAsync(key), nameof(HashDelete));
+        }
+
         private async Task ExecuteServiceRequestAsync(Func<Task> actionAsync, string requestTypeName)
         {
             SFKVEventSource.Current.ServiceRequestStart(nameof(requestTypeName));
-
+            
             try
             {
                 await actionAsync();
@@ -126,17 +194,6 @@ namespace SFKV.Store
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // Initialize the sfkv reliable dictionary.
-            var repositoryType = typeof(IRepository);
-            var allRepositoryTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => repositoryType.IsAssignableFrom(p));
-
-            foreach (var type in allRepositoryTypes)
-            {
-                var name = type.GetProperty(nameof(IRepository.Name)).GetConstantValue().ToString();
-                await StateManager.GetOrAddAsync<IReliableDictionary<string, string>>(name);
-            }
         }
     }
 }
