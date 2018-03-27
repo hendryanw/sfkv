@@ -21,10 +21,12 @@ namespace SFKV.Store
         private readonly Lazy<StringRepository> _stringRepositoryLazy;
         private readonly Lazy<HashRepository> _hashRepositoryLazy;
         private readonly Lazy<IntRepository> _intRepositoryLazy;
+        private readonly Lazy<ListRepository> _listRepositoryLazy;
 
         private StringRepository _stringRepository => _stringRepositoryLazy.Value;
         private HashRepository _hashRepository => _hashRepositoryLazy.Value;
         private IntRepository _intRepository => _intRepositoryLazy.Value;
+        private ListRepository _listRepository => _listRepositoryLazy.Value;
 
         public Store(StatefulServiceContext context)
             : base(context)
@@ -32,106 +34,152 @@ namespace SFKV.Store
             _stringRepositoryLazy = new Lazy<StringRepository>(() => new StringRepository(StateManager));
             _hashRepositoryLazy = new Lazy<HashRepository>(() => new HashRepository(StateManager));
             _intRepositoryLazy = new Lazy<IntRepository>(() => new IntRepository(StateManager));
+            _listRepositoryLazy = new Lazy<ListRepository>(() => new ListRepository(StateManager));
         }
 
-        public async Task<string> StringGet(string key)
+        public async Task<string> StringGetAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _stringRepository.StringGetAsync(key), nameof(StringGet));
+            return await ExecuteServiceRequestAsync(() => _stringRepository.StringGetAsync(key), nameof(StringGetAsync));
         }
 
-        public async Task StringSet(string key, string value)
+        public async Task StringSetAsync(string key, string value)
         {
-            await ExecuteServiceRequestAsync(() => _stringRepository.StringSetAsync(key, value), nameof(StringSet));
+            await ExecuteServiceRequestAsync(() => _stringRepository.StringSetAsync(key, value), nameof(StringSetAsync));
         }
 
-        public async Task StringMultipleSet(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        public async Task StringMultipleSetAsync(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
-            await ExecuteServiceRequestAsync(() => _stringRepository.StringMultipleSetAsync(keyValuePairs), nameof(StringMultipleSet));
+            await ExecuteServiceRequestAsync(() => _stringRepository.StringMultipleSetAsync(keyValuePairs), nameof(StringMultipleSetAsync));
         }
 
-        public async Task StringAppend(string key, string value)
+        public async Task StringAppendAsync(string key, string value)
         {
-            await ExecuteServiceRequestAsync(() => _stringRepository.StringAppendAsync(key, value), nameof(StringAppend));
+            await ExecuteServiceRequestAsync(() => _stringRepository.StringAppendAsync(key, value), nameof(StringAppendAsync));
         }
         
-        public async Task<bool> StringExists(string key)
+        public async Task<bool> StringExistsAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _stringRepository.ExistsAsync(key), nameof(StringExists));
+            return await ExecuteServiceRequestAsync(() => _stringRepository.ExistsAsync(key), nameof(StringExistsAsync));
         }
 
-        public async Task<bool> StringDelete(string key)
+        public async Task<bool> StringDeleteAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _stringRepository.DeleteAsync(key), nameof(StringDelete));
+            return await ExecuteServiceRequestAsync(() => _stringRepository.DeleteAsync(key), nameof(StringDeleteAsync));
         }
         
-        public async Task IntSet(string key, int value)
+        public async Task IntSetAsync(string key, int value)
         {
-            await ExecuteServiceRequestAsync(() => _intRepository.IntSetAsync(key, value), nameof(IntSet));
+            await ExecuteServiceRequestAsync(() => _intRepository.IntSetAsync(key, value), nameof(IntSetAsync));
         }
 
-        public async Task IntMultipleSet(IEnumerable<KeyValuePair<string, int>> keyValuePairs)
+        public async Task IntMultipleSetAsync(IEnumerable<KeyValuePair<string, int>> keyValuePairs)
         {
-            await ExecuteServiceRequestAsync(() => _intRepository.IntMultipleSetAsync(keyValuePairs), nameof(IntMultipleSet));
+            await ExecuteServiceRequestAsync(() => _intRepository.IntMultipleSetAsync(keyValuePairs), nameof(IntMultipleSetAsync));
         }
         
-        public async Task<int> IntGet(string key)
+        public async Task<int> IntGetAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _intRepository.IntGetAsync(key), nameof(IntGet));
+            return await ExecuteServiceRequestAsync(() => _intRepository.IntGetAsync(key), nameof(IntGetAsync));
         }
 
-        public async Task<int> IntIncr(string key)
+        public async Task<int> IntIncrAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _intRepository.IntIncrAsync(key), nameof(IntIncr));
+            return await ExecuteServiceRequestAsync(() => _intRepository.IntIncrAsync(key), nameof(IntIncrAsync));
         }
 
-        public async Task<int> IntIncrBy(string key, int incrBy)
+        public async Task<int> IntIncrByAsync(string key, int incrBy)
         {
-            return await ExecuteServiceRequestAsync(() => _intRepository.IntIncrByAsync(key, incrBy), nameof(IntIncrBy));
+            return await ExecuteServiceRequestAsync(() => _intRepository.IntIncrByAsync(key, incrBy), nameof(IntIncrByAsync));
         }
 
-        public async Task<bool> IntExists(string key)
+        public async Task<bool> IntExistsAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _intRepository.ExistsAsync(key), nameof(IntExists));
+            return await ExecuteServiceRequestAsync(() => _intRepository.ExistsAsync(key), nameof(IntExistsAsync));
         }
 
-        public async Task<bool> IntDelete(string key)
+        public async Task<bool> IntDeleteAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _intRepository.DeleteAsync(key), nameof(IntDelete));
+            return await ExecuteServiceRequestAsync(() => _intRepository.DeleteAsync(key), nameof(IntDeleteAsync));
         }
 
-        public async Task<string> HashGet(string key, string field)
+        public async Task<string> HashGetAsync(string key, string field)
         {
-            return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAsync(key, field), nameof(HashGet));
+            return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAsync(key, field), nameof(HashGetAsync));
         }
 
-        public async Task<IDictionary<string, string>> HashMultipleGet(string key, IEnumerable<string> fields)
+        public async Task<IDictionary<string, string>> HashMultipleGetAsync(string key, IEnumerable<string> fields)
         {
-            return await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleGetAsync(key, fields), nameof(HashMultipleGet));
+            return await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleGetAsync(key, fields), nameof(HashMultipleGetAsync));
         }
 
-        public async Task<IDictionary<string, string>> HashGetAll(string key)
+        public async Task<IDictionary<string, string>> HashGetAllAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAllAsync(key), nameof(HashGetAll));
+            return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAllAsync(key), nameof(HashGetAllAsync));
         }
 
-        public async Task HashSet(string key, KeyValuePair<string, string> keyValuePair)
+        public async Task HashSetAsync(string key, KeyValuePair<string, string> keyValuePair)
         {
-            await ExecuteServiceRequestAsync(() => _hashRepository.HashSetAsync(key, keyValuePair), nameof(HashSet));
+            await ExecuteServiceRequestAsync(() => _hashRepository.HashSetAsync(key, keyValuePair), nameof(HashSetAsync));
         }
 
-        public async Task HashMultipleSet(string key, IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        public async Task HashMultipleSetAsync(string key, IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         {
-            await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleSetAsync(key, keyValuePairs), nameof(HashMultipleSet));
+            await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleSetAsync(key, keyValuePairs), nameof(HashMultipleSetAsync));
         }
 
-        public async Task<bool> HashExists(string key)
+        public async Task<bool> HashExistsAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _hashRepository.ExistsAsync(key), nameof(HashExists));
+            return await ExecuteServiceRequestAsync(() => _hashRepository.ExistsAsync(key), nameof(HashExistsAsync));
         }
 
-        public async Task<bool> HashDelete(string key)
+        public async Task<bool> HashDeleteAsync(string key)
         {
-            return await ExecuteServiceRequestAsync(() => _hashRepository.DeleteAsync(key), nameof(HashDelete));
+            return await ExecuteServiceRequestAsync(() => _hashRepository.DeleteAsync(key), nameof(HashDeleteAsync));
+        }
+
+        public async Task<string[]> ListRangeAsync(string key, int firstIndex, int lastIndex)
+        {
+            return await ExecuteServiceRequestAsync(() => _listRepository.ListRangeAsync(key, firstIndex, lastIndex), nameof(ListRangeAsync));
+        }
+
+        public async Task ListAddFirstAsync(string key, string value)
+        {
+            await ExecuteServiceRequestAsync(() => _listRepository.ListAddFirstAsync(key, value), nameof(ListAddFirstAsync));
+        }
+
+        public async Task ListAddMultipleFirstAsync(string key, IEnumerable<string> values)
+        {
+            await ExecuteServiceRequestAsync(() => _listRepository.ListAddFirstAsync(key, values), nameof(ListAddMultipleFirstAsync));
+        }
+
+        public async Task ListAddLastAsync(string key, string value)
+        {
+            await ExecuteServiceRequestAsync(() => _listRepository.ListAddLastAsync(key, value), nameof(ListAddLastAsync));
+        }
+
+        public async Task ListAddMultipleLastAsync(string key, IEnumerable<string> values)
+        {
+            await ExecuteServiceRequestAsync(() => _listRepository.ListAddLastAsync(key, values), nameof(ListAddMultipleLastAsync));
+        }
+
+        public async Task<string> ListPopFirstAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _listRepository.ListPopFirstAsync(key), nameof(ListPopFirstAsync));
+        }
+
+        public async Task<string> ListPopLastAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _listRepository.ListPopLastAsync(key), nameof(ListPopLastAsync));
+        }
+
+        public async Task<bool> ListExistsAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _listRepository.ExistsAsync(key), nameof(ListExistsAsync));
+        }
+
+        public async Task<bool> ListDeleteAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _listRepository.DeleteAsync(key), nameof(ListDeleteAsync));
         }
 
         private async Task ExecuteServiceRequestAsync(Func<Task> actionAsync, string requestTypeName)
