@@ -22,11 +22,13 @@ namespace SFKV.Store
         private readonly Lazy<HashRepository> _hashRepositoryLazy;
         private readonly Lazy<IntRepository> _intRepositoryLazy;
         private readonly Lazy<ListRepository> _listRepositoryLazy;
+        private readonly Lazy<SetRepository> _setRepositoryLazy;
 
         private StringRepository _stringRepository => _stringRepositoryLazy.Value;
         private HashRepository _hashRepository => _hashRepositoryLazy.Value;
         private IntRepository _intRepository => _intRepositoryLazy.Value;
         private ListRepository _listRepository => _listRepositoryLazy.Value;
+        private SetRepository _setRepository => _setRepositoryLazy.Value;
 
         public Store(StatefulServiceContext context)
             : base(context)
@@ -35,6 +37,7 @@ namespace SFKV.Store
             _hashRepositoryLazy = new Lazy<HashRepository>(() => new HashRepository(StateManager));
             _intRepositoryLazy = new Lazy<IntRepository>(() => new IntRepository(StateManager));
             _listRepositoryLazy = new Lazy<ListRepository>(() => new ListRepository(StateManager));
+            _setRepositoryLazy = new Lazy<SetRepository>(() => new SetRepository(StateManager));
         }
 
         public async Task<string> StringGetAsync(string key)
@@ -47,7 +50,7 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _stringRepository.StringSetAsync(key, value), nameof(StringSetAsync));
         }
 
-        public async Task StringMultipleSetAsync(IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        public async Task StringMultipleSetAsync(KeyValuePair<string, string>[] keyValuePairs)
         {
             await ExecuteServiceRequestAsync(() => _stringRepository.StringMultipleSetAsync(keyValuePairs), nameof(StringMultipleSetAsync));
         }
@@ -72,7 +75,7 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _intRepository.IntSetAsync(key, value), nameof(IntSetAsync));
         }
 
-        public async Task IntMultipleSetAsync(IEnumerable<KeyValuePair<string, int>> keyValuePairs)
+        public async Task IntMultipleSetAsync(KeyValuePair<string, int>[] keyValuePairs)
         {
             await ExecuteServiceRequestAsync(() => _intRepository.IntMultipleSetAsync(keyValuePairs), nameof(IntMultipleSetAsync));
         }
@@ -107,7 +110,7 @@ namespace SFKV.Store
             return await ExecuteServiceRequestAsync(() => _hashRepository.HashGetAsync(key, field), nameof(HashGetAsync));
         }
 
-        public async Task<IDictionary<string, string>> HashMultipleGetAsync(string key, IEnumerable<string> fields)
+        public async Task<IDictionary<string, string>> HashMultipleGetAsync(string key, string[] fields)
         {
             return await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleGetAsync(key, fields), nameof(HashMultipleGetAsync));
         }
@@ -122,7 +125,7 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _hashRepository.HashSetAsync(key, keyValuePair), nameof(HashSetAsync));
         }
 
-        public async Task HashMultipleSetAsync(string key, IEnumerable<KeyValuePair<string, string>> keyValuePairs)
+        public async Task HashMultipleSetAsync(string key, KeyValuePair<string, string>[] keyValuePairs)
         {
             await ExecuteServiceRequestAsync(() => _hashRepository.HashMultipleSetAsync(key, keyValuePairs), nameof(HashMultipleSetAsync));
         }
@@ -147,7 +150,7 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _listRepository.ListAddFirstAsync(key, value), nameof(ListAddFirstAsync));
         }
 
-        public async Task ListAddMultipleFirstAsync(string key, IEnumerable<string> values)
+        public async Task ListAddMultipleFirstAsync(string key, string[] values)
         {
             await ExecuteServiceRequestAsync(() => _listRepository.ListAddFirstAsync(key, values), nameof(ListAddMultipleFirstAsync));
         }
@@ -157,7 +160,7 @@ namespace SFKV.Store
             await ExecuteServiceRequestAsync(() => _listRepository.ListAddLastAsync(key, value), nameof(ListAddLastAsync));
         }
 
-        public async Task ListAddMultipleLastAsync(string key, IEnumerable<string> values)
+        public async Task ListAddMultipleLastAsync(string key, string[] values)
         {
             await ExecuteServiceRequestAsync(() => _listRepository.ListAddLastAsync(key, values), nameof(ListAddMultipleLastAsync));
         }
@@ -180,6 +183,56 @@ namespace SFKV.Store
         public async Task<bool> ListDeleteAsync(string key)
         {
             return await ExecuteServiceRequestAsync(() => _listRepository.DeleteAsync(key), nameof(ListDeleteAsync));
+        }
+
+        public async Task<string[]> SetGetAllAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _setRepository.SetGetAllAsync(key), nameof(SetGetAllAsync));
+        }
+
+        public async Task<string[]> SetGetAsync(string key, int count)
+        {
+            return await ExecuteServiceRequestAsync(() => _setRepository.SetGetAsync(key, count), nameof(SetGetAsync));
+        }
+
+        public async Task SetAddAsync(string key, string value)
+        {
+            await ExecuteServiceRequestAsync(() => _setRepository.SetAddAsync(key, value), nameof(SetAddAsync));
+        }
+
+        public async Task SetAddMultipleAsync(string key, string[] values)
+        {
+            await ExecuteServiceRequestAsync(() => _setRepository.SetAddMultipleAsync(key, values), nameof(SetAddMultipleAsync));
+        }
+
+        public async Task SetRemoveAsync(string key, string value)
+        {
+            await ExecuteServiceRequestAsync(() => _setRepository.SetRemoveAsync(key, value), nameof(SetRemoveAsync));
+        }
+
+        public async Task SetRemoveMultipleAsync(string key, string[] values)
+        {
+            await ExecuteServiceRequestAsync(() => _setRepository.SetRemoveMultipleAsync(key, values), nameof(SetRemoveMultipleAsync));
+        }
+
+        public async Task<int> SetCountAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _setRepository.SetCountAsync(key), nameof(SetCountAsync));
+        }
+
+        public async Task<bool> SetContainsAsync(string key, string value)
+        {
+            return await ExecuteServiceRequestAsync(() => _setRepository.SetContainsAsync(key, value), nameof(SetContainsAsync));
+        }
+
+        public async Task<bool> SetExistsAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _setRepository.ExistsAsync(key), nameof(SetExistsAsync));
+        }
+
+        public async Task<bool> SetDeleteAsync(string key)
+        {
+            return await ExecuteServiceRequestAsync(() => _setRepository.DeleteAsync(key), nameof(SetDeleteAsync));
         }
 
         private async Task ExecuteServiceRequestAsync(Func<Task> actionAsync, string requestTypeName)
