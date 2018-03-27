@@ -25,7 +25,7 @@ namespace SFKV.Contracts
         /// </summary>
         /// <param name="keyValuePairs">The key value pairs.</param>
         /// <returns>Returns awaitable task.</returns>
-        Task StringMultipleSetAsync(IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        Task StringMultipleSetAsync(KeyValuePair<string, string>[] keyValuePairs);
 
         /// <summary>
         /// Get the value based on the key from the store.
@@ -69,7 +69,7 @@ namespace SFKV.Contracts
         /// </summary>
         /// <param name="keyValuePairs">The key and integer value pairs.</param>
         /// <returns>Returns awaitable task.</returns>
-        Task IntMultipleSetAsync(IEnumerable<KeyValuePair<string, int>> keyValuePairs);
+        Task IntMultipleSetAsync(KeyValuePair<string, int>[] keyValuePairs);
 
         /// <summary>
         /// Get the integer value based on the key from the store.
@@ -120,7 +120,7 @@ namespace SFKV.Contracts
         /// <param name="key">The hash key.</param>
         /// <param name="fields">The hash fields.</param>
         /// <returns>Returns the values of the multiple hash fields. Returns empty value if the field is not found.</returns>
-        Task<IDictionary<string, string>> HashMultipleGetAsync(string key, IEnumerable<string> fields);
+        Task<IDictionary<string, string>> HashMultipleGetAsync(string key, string[] fields);
 
         /// <summary>
         /// Get the hash.
@@ -143,7 +143,7 @@ namespace SFKV.Contracts
         /// <param name="key">The hash key.</param>
         /// <param name="keyValuePairs">Multiple hash field and value pairs.</param>
         /// <returns>Returns awaitable task.</returns>
-        Task HashMultipleSetAsync(string key, IEnumerable<KeyValuePair<string, string>> keyValuePairs);
+        Task HashMultipleSetAsync(string key, KeyValuePair<string, string>[] keyValuePairs);
 
         /// <summary>
         /// Check whether the specified key exists on the store.
@@ -182,7 +182,7 @@ namespace SFKV.Contracts
         /// <param name="key">The key.</param>
         /// <param name="values">The values.</param>
         /// <returns>Returns awaitable task.</returns>
-        Task ListAddMultipleFirstAsync(string key, IEnumerable<string> values);
+        Task ListAddMultipleFirstAsync(string key, string[] values);
 
         /// <summary>
         /// Add the value at the last position of the list.
@@ -198,7 +198,7 @@ namespace SFKV.Contracts
         /// <param name="key">The key.</param>
         /// <param name="values">The values.</param>
         /// <returns>Returns awaitable task.</returns>
-        Task ListAddMultipleLastAsync(string key, IEnumerable<string> values);
+        Task ListAddMultipleLastAsync(string key, string[] values);
 
         /// <summary>
         /// Remove and return the first value of the list.
@@ -227,5 +227,81 @@ namespace SFKV.Contracts
         /// <param name="key">The key.</param>
         /// <returns>Returns a boolean indicating the key value pair is removed from the store.</returns>
         Task<bool> ListDeleteAsync(string key);
+
+        /// <summary>
+        /// Get all values in a set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>Returns all values in a set.</returns>
+        Task<string[]> SetGetAllAsync(string key);
+
+        /// <summary>
+        /// Get specified number of values in a set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="count">The number of values to be retrieved.</param>
+        /// <returns>Returns the values in the specified set.</returns>
+        Task<string[]> SetGetAsync(string key, int count);
+
+        /// <summary>
+        /// Add a value into the set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>Returns awaitable task.</returns>
+        Task SetAddAsync(string key, string value);
+
+        /// <summary>
+        /// Add multiple values into the set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="values">The value.</param>
+        /// <returns>Returns awaitable task.</returns>
+        Task SetAddMultipleAsync(string key, string[] values);
+
+        /// <summary>
+        /// Remove a value from the set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>Returns awaitable task.</returns>
+        Task SetRemoveAsync(string key, string value);
+
+        /// <summary>
+        /// Remove multiple values from the set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>Returns awaitable task.</returns>
+        Task SetRemoveMultipleAsync(string key, string[] values);
+
+        /// <summary>
+        /// Get the number of elements in a set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>Returns the number of elements in a set.</returns>
+        Task<int> SetCountAsync(string key);
+
+        /// <summary>
+        /// Check whether the value is a member of the set.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>Returns a boolean indicating whether the value is a member of the set.</returns>
+        Task<bool> SetContainsAsync(string key, string value);
+
+        /// <summary>
+        /// Check whether the specified key exists on the store.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>Returns a boolean indicating the key existence.</returns>
+        Task<bool> SetExistsAsync(string key);
+
+        /// <summary>
+        /// Delete the specified key and its value from the store.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>Returns a boolean indicating the key value pair is removed from the store.</returns>
+        Task<bool> SetDeleteAsync(string key);
     }
 }
