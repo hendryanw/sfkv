@@ -30,8 +30,8 @@ The `ServiceProxy.Create` method takes 3 arguments, and also 1 optional argument
 | partitionKey | ServicePartitionKey | This is the partition key which the data will be set or get. You can use up to 10 partitions by using `0` to `9` keys. How the data is sharded is the client's responsibility, so you should plan your data partitioning strategy before hand. For example you can use some kind of hashing algorithm that is uniformed and deterministic and modulo it by 10. |
 | targetReplicaSelector | TargetReplicaSelector | This is an enum which you can use to select which replica that the service proxy client will target. For more information please refer to the following [documentation](https://docs.microsoft.com/en-us/dotnet/api/microsoft.servicefabric.services.communication.client.targetreplicaselector?view=azure-dotnet). |
 
-<a name='service-interface'></a>
-# Service Interface[#](#service-interface 'Go To Here')
+<a name='contents'></a>
+# Service Interface [#](#contents 'Go To Here')
 
 - [IStore](#T-SFKV-Contracts-IStore 'SFKV.Contracts.IStore')
   - [HashDeleteAsync(key)](#M-SFKV-Contracts-IStore-HashDeleteAsync-System-String- 'SFKV.Contracts.IStore.HashDeleteAsync(System.String)')
