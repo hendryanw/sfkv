@@ -1,5 +1,5 @@
 # SFKV
-A fast and reliable remote key-value store for Microsoft Service Fabric using service remoting / rpc.
+A fast and reliable remote key-value store for Microsoft Service Fabric via service remoting.
 - SFKV is designed as a standalone application / service that can run on a Service Fabric cluster along with your applications / services.
 - SFKV is able to reliably store your state as key-value pair. 
 - SFKV supports sharding up to 10 partitions.
