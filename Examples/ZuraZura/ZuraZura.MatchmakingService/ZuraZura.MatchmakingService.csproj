@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.ServiceFabric.AspNetCore.Kestrel" Version="3.0.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.456" />
     <PackageReference Include="Microsoft.ServiceFabric.Services" Version="3.0.456" />
-    <PackageReference Include="SFKV.Contracts" Version="2.0.0" />
+    <PackageReference Include="SFKV.Contracts" Version="1.0.1-alpha3" />
   </ItemGroup>
 
   <ItemGroup>
