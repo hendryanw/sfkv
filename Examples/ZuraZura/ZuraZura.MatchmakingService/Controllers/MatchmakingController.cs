@@ -16,6 +16,14 @@ namespace ZuraZura.MatchmakingService.Controllers
     /// </summary>
     public class MatchmakingMembers : List<string>
     {
+        public MatchmakingMembers()
+        {
+        }
+
+        public MatchmakingMembers(string[] members)
+            : base(members)
+        {
+        }
     }
 
     /// <summary>
@@ -25,86 +33,17 @@ namespace ZuraZura.MatchmakingService.Controllers
     public class MatchmakingController : Controller
     {
         private const string _matchmakingStoreKey = "zurazura.matchmaking";
-        
+
         [HttpGet]
         public async Task<MatchmakingMembers> ListMembers()
         {
-            MatchmakingEventSource.Current.ServiceRequestStart(nameof(ListMembers), DateTime.Now.ToString("o"), null);
-
-            try
-            {
-                return await GetMatchmakingMembersFromStoreAsync();
-            }
-            catch (Exception ex)
-            {
-                MatchmakingEventSource.Current.ServiceRequestError(nameof(ListMembers), ex.ToString());
-
-                throw;
-            }
-            finally
-            {
-                MatchmakingEventSource.Current.ServiceRequestStop(nameof(ListMembers), DateTime.Now.ToString("o"));
-            }
-        }
-        
-        [HttpPost]
-        public async Task Join([FromForm]string name)
-        {
-            MatchmakingEventSource.Current.ServiceRequestStart(nameof(Join), DateTime.Now.ToString("o"), JsonConvert.SerializeObject(new { name }));
-
-            try
-            {
-                var currentMembers = await GetMatchmakingMembersFromStoreAsync();
-
-                currentMembers.Add(name);
-                await SetMatchmakingMembersToStoreAsync(currentMembers);
-            }
-            catch (Exception ex)
-            {
-                MatchmakingEventSource.Current.ServiceRequestError(nameof(Join), ex.ToString());
-
-                throw;
-            }
-            finally
-            {
-                MatchmakingEventSource.Current.ServiceRequestStop(nameof(Join), DateTime.Now.ToString("o"));
-            }
-        }
-
-        [HttpDelete("{name}")]
-        public async Task Leave(string name)
-        {
-            MatchmakingEventSource.Current.ServiceRequestStart(nameof(Leave), DateTime.Now.ToString("o"), JsonConvert.SerializeObject(new { name }));
-
-            try
-            {
-                var currentMembers = await GetMatchmakingMembersFromStoreAsync();
-
-                currentMembers.Remove(name);
-                await SetMatchmakingMembersToStoreAsync(currentMembers);
-            }
-            catch (Exception ex)
-            {
-                MatchmakingEventSource.Current.ServiceRequestError(nameof(Leave), ex.ToString());
-
-                throw;
-            }
-            finally
-            {
-                MatchmakingEventSource.Current.ServiceRequestStop(nameof(Leave), DateTime.Now.ToString("o"));
-            }
-        }
-
-        private async Task<MatchmakingMembers> GetMatchmakingMembersFromStoreAsync()
-        {
             // The matchmaking controller use random secondary replicas for read operation.
             var storeProxy = CreateStoreProxy(TargetReplicaSelector.RandomSecondaryReplica);
-
-            var result = await storeProxy.StringGet(_matchmakingStoreKey);
+            var result = await storeProxy.SetGetAllAsync(_matchmakingStoreKey);
 
             if (result != null)
             {
-                return JsonConvert.DeserializeObject<MatchmakingMembers>(result);
+                return new MatchmakingMembers(result);
             }
             else
             {
@@ -112,12 +51,20 @@ namespace ZuraZura.MatchmakingService.Controllers
             }
         }
 
-        private Task SetMatchmakingMembersToStoreAsync(MatchmakingMembers members)
+        [HttpPost]
+        public async Task Join([FromForm]string name)
         {
             var storeProxy = CreateStoreProxy(TargetReplicaSelector.PrimaryReplica);
-            return storeProxy.StringSet(_matchmakingStoreKey, JsonConvert.SerializeObject(members));
+            await storeProxy.SetAddAsync(_matchmakingStoreKey, name);
         }
-        
+
+        [HttpDelete("{name}")]
+        public async Task Leave(string name)
+        {
+            var storeProxy = CreateStoreProxy(TargetReplicaSelector.PrimaryReplica);
+            await storeProxy.SetRemoveAsync(_matchmakingStoreKey, name);
+        }
+
         private IStore CreateStoreProxy(TargetReplicaSelector targetReplicaSelector)
         {
             // The matchmaking service only store the matchmaking members in a single partition.

@@ -14,11 +14,16 @@
     <PackageIconUrl>https://raw.githubusercontent.com/hendryanw/sfkv/master/res/web_hi_res_512.png</PackageIconUrl>
     <PackageTags>ServiceFabric Fabric Microsoft KeyValueStore KeyValue RPC</PackageTags>
     <PackageReleaseNotes>This release use netstandard 2.0 for Service Interface.</PackageReleaseNotes>
-    <Version>1.0.1-alpha3</Version>
+    <Version>1.0.1-alpha4</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DocumentationFile>bin\x64\Debug\netstandard2.0\SFKV.Contracts.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.456" />
+    <PackageReference Include="Vsxmd" Version="1.2.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

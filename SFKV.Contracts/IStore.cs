@@ -89,6 +89,7 @@ namespace SFKV.Contracts
         /// Increment the integer value with specified number.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="incrBy">The number which will be incremented to value.</param>
         /// <returns>Returns the incremented value.</returns>
         Task<int> IntIncrByAsync(string key, int incrBy);
 
