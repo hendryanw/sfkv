@@ -17,8 +17,13 @@
     <Version>1.0.1-alpha3</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DocumentationFile>bin\x64\Debug\netstandard2.0\SFKV.Contracts.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.0.456" />
+    <PackageReference Include="Vsxmd" Version="1.2.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
