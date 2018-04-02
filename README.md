@@ -1,3 +1,5 @@
+[![Build Status](https://hendryanwar.visualstudio.com/_apis/public/build/definitions/5ce4cc85-dce0-4265-ab08-97950ba30968/1/badge)](https://hendryanwar.visualstudio.com/SFKV/_build/index?definitionId=1)
+
 # SFKV
 A fast and reliable remote key-value store for Microsoft Service Fabric via service remoting.
 - SFKV is designed as a standalone application / service that can run on a Service Fabric cluster along with your applications / services.
