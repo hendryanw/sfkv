@@ -295,6 +295,31 @@ namespace SFKV.Store
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
+            // Initialize the repositories on primary replica.
+            if (!_stringRepositoryLazy.IsValueCreated)
+            {
+                var stringRepository = _stringRepositoryLazy.Value; 
+            }
+
+            if (!_intRepositoryLazy.IsValueCreated)
+            {
+                var intRepository = _intRepositoryLazy.Value;
+            }
+
+            if (!_hashRepositoryLazy.IsValueCreated)
+            {
+                var hashRepository = _hashRepositoryLazy.Value; 
+            }
+
+            if (!_listRepositoryLazy.IsValueCreated)
+            {
+                var listRepository = _listRepositoryLazy.Value; 
+            }
+
+            if (!_setRepositoryLazy.IsValueCreated)
+            {
+                var setRepository = _setRepositoryLazy.Value; 
+            }
         }
     }
 }
