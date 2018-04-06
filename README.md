@@ -1,3 +1,5 @@
+[![Build Status](https://hendryanwar.visualstudio.com/_apis/public/build/definitions/5ce4cc85-dce0-4265-ab08-97950ba30968/1/badge)](https://hendryanwar.visualstudio.com/SFKV/_build/index?definitionId=1)
+
 # SFKV
 A fast and reliable remote key-value store for Microsoft Service Fabric via service remoting.
 - SFKV is designed as a standalone application / service that can run on a Service Fabric cluster along with your applications / services.
@@ -789,3 +791,34 @@ Returns awaitable task.
 
 # Releases
 TODO
+
+# Deployment
+You can deploy SFKV to your Service Fabric Cluster using powershell like usual. Below is the example of deploying SFKV to Service Fabric using a Client Certificate.
+````
+$ErrorActionPreference = "STOP";
+
+# Variables
+$endpoint = 'your.cluster.endpoint:19000'
+$thumbprint = 'YOURCERTTHUMBPRINT'
+$packagepath = 'C:\Your\ApplicationPackagePath'
+$applicationTypeVersion = 'Application.Type.Version';
+
+# Connect to the cluster using a client certificate.
+Connect-ServiceFabricCluster -ConnectionEndpoint $endpoint `
+          -KeepAliveIntervalInSec 10 `
+          -X509Credential -ServerCertThumbprint $thumbprint `
+          -FindType FindByThumbprint -FindValue $thumbprint `
+          -StoreLocation CurrentUser -StoreName My
+
+# Copy the application package to the cluster image store.
+Copy-ServiceFabricApplicationPackage $packagepath -ImageStoreConnectionString fabric:ImageStore -ApplicationPackagePathInImageStore SFKV
+
+# Register the application type.
+Register-ServiceFabricApplicationType -ApplicationPathInImageStore SFKV
+
+# Remove the application package to free system resources.
+Remove-ServiceFabricApplicationPackage -ImageStoreConnectionString fabric:ImageStore -ApplicationPackagePathInImageStore SFKV
+
+# Create the application instance.
+New-ServiceFabricApplication -ApplicationName fabric:/SFKV -ApplicationTypeName SFKVType -ApplicationTypeVersion $applicationTypeVersion
+````
